@@ -1,17 +1,39 @@
 
+import { db } from '../db';
+import { usersTable } from '../db/schema';
 import { type LecturerRegisterInput, type User } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function registerLecturer(input: LecturerRegisterInput): Promise<User> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is registering a new lecturer with name and password.
-    // Should hash the password before storing and check for duplicate names.
-    return Promise.resolve({
-        id: 0, // Placeholder ID
-        role: 'lecturer' as const,
+export const registerLecturer = async (input: LecturerRegisterInput): Promise<User> => {
+  try {
+    // Check if lecturer with same name already exists
+    const existingLecturer = await db.select()
+      .from(usersTable)
+      .where(eq(usersTable.name, input.name))
+      .execute();
+
+    if (existingLecturer.length > 0) {
+      throw new Error('Lecturer with this name already exists');
+    }
+
+    // Hash the password (simple implementation - in production use bcrypt)
+    const passwordHash = await Bun.password.hash(input.password);
+
+    // Insert lecturer record
+    const result = await db.insert(usersTable)
+      .values({
+        role: 'lecturer',
         name: input.name,
         nim: null,
         attendance_number: null,
-        password_hash: 'hashed_password_placeholder',
-        created_at: new Date()
-    } as User);
-}
+        password_hash: passwordHash
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Lecturer registration failed:', error);
+    throw error;
+  }
+};

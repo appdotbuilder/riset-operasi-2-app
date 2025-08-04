@@ -1,22 +1,52 @@
 
+import { db } from '../db';
+import { answersTable, usersTable } from '../db/schema';
 import { type ManualScoreInput, type Answer } from '../schema';
+import { eq, and } from 'drizzle-orm';
 
 export async function manualScoreAnswer(input: ManualScoreInput): Promise<Answer> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is allowing lecturers to manually score student answers.
-    // Should validate that the scorer is a lecturer and update final score accordingly.
-    return Promise.resolve({
-        id: input.answer_id,
-        question_id: 1, // Placeholder
-        student_id: 1, // Placeholder
-        content: 'Student answer content',
-        auto_score: null,
+  try {
+    // Verify that the scorer is a lecturer
+    const scorer = await db.select()
+      .from(usersTable)
+      .where(eq(usersTable.id, input.scored_by))
+      .execute();
+
+    if (scorer.length === 0) {
+      throw new Error('Scorer not found');
+    }
+
+    if (scorer[0].role !== 'lecturer') {
+      throw new Error('Only lecturers can manually score answers');
+    }
+
+    // Get the current answer to verify it exists
+    const existingAnswer = await db.select()
+      .from(answersTable)
+      .where(eq(answersTable.id, input.answer_id))
+      .execute();
+
+    if (existingAnswer.length === 0) {
+      throw new Error('Answer not found');
+    }
+
+    // Update the answer with manual score
+    const result = await db.update(answersTable)
+      .set({
         manual_score: input.manual_score,
         final_score: input.manual_score, // Final score becomes manual score
-        status: 'manually_scored' as const,
+        status: 'manually_scored',
         feedback: input.feedback || null,
-        submitted_at: new Date(),
         scored_at: new Date(),
         scored_by: input.scored_by
-    } as Answer);
+      })
+      .where(eq(answersTable.id, input.answer_id))
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Manual scoring failed:', error);
+    throw error;
+  }
 }
