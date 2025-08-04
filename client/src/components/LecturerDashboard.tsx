@@ -4,7 +4,7 @@ import { trpc } from '@/utils/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus, BookOpen, Users, BarChart3, FileCheck } from 'lucide-react';
+import { Plus, BookOpen, Users, BarChart3, FileCheck, Sparkles } from 'lucide-react';
 import { QuestionManagement } from '@/components/QuestionManagement';
 import { CreateQuestionForm } from '@/components/CreateQuestionForm';
 import { StudentScores } from '@/components/StudentScores'; 
@@ -95,7 +95,7 @@ export function LecturerDashboard({ user }: LecturerDashboardProps) {
 
       {/* Main Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="questions" className="flex items-center space-x-2">
             <BookOpen className="h-4 w-4" />
             <span>Kelola Soal</span>
@@ -111,6 +111,10 @@ export function LecturerDashboard({ user }: LecturerDashboardProps) {
           <TabsTrigger value="analytics" className="flex items-center space-x-2">
             <BarChart3 className="h-4 w-4" />
             <span>Analitik</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai-tools" className="flex items-center space-x-2">
+            <Sparkles className="h-4 w-4" />
+            <span>AI Tools</span>
           </TabsTrigger>
         </TabsList>
 
@@ -160,6 +164,31 @@ export function LecturerDashboard({ user }: LecturerDashboardProps) {
                 <p className="text-sm text-gray-400 mt-2">
                   Akan menampilkan statistik performa mahasiswa, distribusi nilai, dan tren jawaban
                 </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai-tools">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Sparkles className="h-5 w-5" />
+                <span>Integrasi Alat AI</span>
+              </CardTitle>
+              <CardDescription>
+                Tempat untuk mengintegrasikan layanan AI eksternal untuk penilaian esai otomatis, generasi feedback, atau analisis data tingkat lanjut.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  Dengan integrasi AI, Anda dapat memanfaatkan teknologi canggih untuk meningkatkan efisiensi penilaian dan memberikan feedback yang lebih komprehensif kepada mahasiswa. Fitur-fitur yang dapat diintegrasikan meliputi penilaian esai otomatis berbasis NLP, analisis sentimen jawaban, generasi feedback personalisasi, dan deteksi plagiarisme tingkat lanjut.
+                </p>
+                <Button className="flex items-center space-x-2">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Konfigurasi Layanan AI</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
